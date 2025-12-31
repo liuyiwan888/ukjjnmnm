@@ -1,0 +1,58 @@
+import { useState } from 'react';
+import { marked } from 'marked';
+
+export default function Home() {
+  const [markdown, setMarkdown] = useState('');
+  const [html, setHtml] = useState('');
+
+  const formatArticle = () => {
+    const renderer = new marked.Renderer();
+    
+    // 自定义标题样式
+    renderer.heading = (text, level) => {
+      const sizes = { 1: '24px', 2: '17px', 3: '16px' };
+      const colors = { 1: '#c00', 2: '#2c3e50', 3: '#333' };
+      return `<h${level} style="font-size:${sizes[level]};color:${colors[level]};font-weight:bold;margin:25px 0 15px 0;">
+        ${text}
+      </h${level}>`;
+    };
+
+    // 自定义强调（**文字**）
+    renderer.strong = (text) => {
+      return `<span style="color:#c00;font-weight:bold;">${text}</span>`;
+    };
+
+    marked.setOptions({ renderer });
+    setHtml(marked.parse(markdown));
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f7f7f7' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px' }}>
+        <h1 style={{ textAlign: 'center', color: '#c00' }}>公众号自动排版工具</h1>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          {/* 输入区 */}
+          <div style={{ background: '#fff', padding: '20px', borderRadius: '8px' }}>
+            <h3>输入Markdown</h3>
+            <textarea
+              value={markdown}
+              onChange={e => setMarkdown(e.target.value)}
+              style={{ width: '100%', height: '60vh', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+              placeholder="支持Markdown语法：# 标题 ## 二级标题 **加粗**"
+            />
+            <button onClick={formatArticle} style={{ marginTop: '10px', padding: '10px 30px', background: '#c00', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
+              🚀 一键排版
+            </button>
+          </div>
+
+          {/* 预览区 */}
+          <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', overflow: 'auto' }}>
+            <h3>预览效果</h3>
+            <div style={{ fontSize: '16px', lineHeight: '1.8' }} dangerouslySetInnerHTML={{ __html: html }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
